@@ -1,0 +1,9 @@
+{
+  "gopls": {
+    "experimentalWorkspaceModule": true
+  },
+  "go.gopath": "",
+  "go.toolsEnvVars": {
+    "GOWORK": "D:/go project/go.work"
+  }
+}
