@@ -354,6 +354,202 @@ class AdminAppointment {
   );
 }
 
+// ── Professionals ─────────────────────────────────────────────────────────────
+
+class AdminProfessional {
+  final String id;
+  final String name;
+  final String role;
+  final String serviceName;
+  final String zoneId;
+  final String zoneName;
+  final String bio;
+  final String qualification;
+  final double rating;
+  final bool isAvailable;
+  final int yearsExperience;
+  final int estimatedDuration;
+  final double hourlyRate;
+  final String availableTimeStart;
+  final String availableTimeEnd;
+  final String imageUrl;
+
+  AdminProfessional({
+    required this.id,
+    required this.name,
+    required this.role,
+    required this.serviceName,
+    required this.zoneId,
+    required this.zoneName,
+    required this.bio,
+    required this.qualification,
+    required this.rating,
+    required this.isAvailable,
+    required this.yearsExperience,
+    required this.estimatedDuration,
+    required this.hourlyRate,
+    required this.availableTimeStart,
+    required this.availableTimeEnd,
+    required this.imageUrl,
+  });
+
+  factory AdminProfessional.fromJson(Map<String, dynamic> j) => AdminProfessional(
+    id: j['id'] ?? j['_id'] ?? '',
+    name: j['name'] ?? '',
+    role: j['role'] ?? '',
+    serviceName: j['service_name'] ?? '',
+    zoneId: j['zone_id'] ?? '',
+    zoneName: j['zone_name'] ?? '',
+    bio: j['bio'] ?? '',
+    qualification: j['qualification'] ?? '',
+    rating: (j['rating'] ?? 0).toDouble(),
+    isAvailable: j['available'] ?? j['is_available'] ?? true,
+    yearsExperience: j['years_experience'] ?? j['years_of_experience'] ?? 0,
+    estimatedDuration: j['estimated_duration'] ?? 30,
+    hourlyRate: (j['hourly_rate'] ?? 0).toDouble(),
+    availableTimeStart: j['available_time_start'] ?? '',
+    availableTimeEnd: j['available_time_end'] ?? '',
+    imageUrl: j['image_url'] ?? '',
+  );
+}
+
+// ── Promo Codes ───────────────────────────────────────────────────────────────
+
+class AdminPromoCode {
+  final String id;
+  final String code;
+  final String description;
+  final String discountType;
+  final double discountValue;
+  final double minOrderAmount;
+  final double maxDiscount;
+  final int usageLimit;
+  final int usedCount;
+  final bool isActive;
+  final String? expiresAt;
+
+  AdminPromoCode({
+    required this.id,
+    required this.code,
+    required this.description,
+    required this.discountType,
+    required this.discountValue,
+    required this.minOrderAmount,
+    required this.maxDiscount,
+    required this.usageLimit,
+    required this.usedCount,
+    required this.isActive,
+    this.expiresAt,
+  });
+
+  factory AdminPromoCode.fromJson(Map<String, dynamic> j) => AdminPromoCode(
+    id: j['promo_id'] ?? j['id'] ?? '',
+    code: j['code'] ?? '',
+    description: j['description'] ?? '',
+    discountType: j['discount_type'] ?? 'FLAT',
+    discountValue: (j['discount_value'] ?? 0).toDouble(),
+    minOrderAmount: (j['min_order_amount'] ?? 0).toDouble(),
+    maxDiscount: (j['max_discount'] ?? 0).toDouble(),
+    usageLimit: j['usage_limit'] ?? 0,
+    usedCount: j['used_count'] ?? 0,
+    isActive: j['is_active'] ?? true,
+    expiresAt: j['expires_at'],
+  );
+}
+
+// ── Payouts ──────────────────────────────────────────────────────────────────
+
+class AdminPayout {
+  final String id;
+  final String professionalId;
+  final String userId;
+  final double amount;
+  final String status;
+  final String notes;
+  final String createdAt;
+
+  AdminPayout({
+    required this.id,
+    required this.professionalId,
+    required this.userId,
+    required this.amount,
+    required this.status,
+    required this.notes,
+    required this.createdAt,
+  });
+
+  factory AdminPayout.fromJson(Map<String, dynamic> j) => AdminPayout(
+    id: j['payout_id'] ?? j['id'] ?? '',
+    professionalId: j['professional_id'] ?? '',
+    userId: j['user_id'] ?? '',
+    amount: (j['amount'] ?? 0).toDouble(),
+    status: j['status'] ?? 'PENDING',
+    notes: j['notes'] ?? '',
+    createdAt: j['created_at'] ?? '',
+  );
+}
+
+// ── Banners ──────────────────────────────────────────────────────────────────
+
+class AdminBanner {
+  final String id;
+  final String title;
+  final String imageUrl;
+  final String linkUrl;
+  final bool isActive;
+  final int sortOrder;
+
+  AdminBanner({
+    required this.id,
+    required this.title,
+    required this.imageUrl,
+    required this.linkUrl,
+    required this.isActive,
+    required this.sortOrder,
+  });
+
+  factory AdminBanner.fromJson(Map<String, dynamic> j) => AdminBanner(
+    id: j['banner_id'] ?? j['id'] ?? '',
+    title: j['title'] ?? '',
+    imageUrl: j['image_url'] ?? '',
+    linkUrl: j['link_url'] ?? '',
+    isActive: j['is_active'] ?? true,
+    sortOrder: j['sort_order'] ?? 0,
+  );
+}
+
+// ── Disputes ─────────────────────────────────────────────────────────────────
+
+class AdminDispute {
+  final String id;
+  final String bookingId;
+  final String raisedBy;
+  final String description;
+  final String status;
+  final String resolution;
+  final String createdAt;
+
+  AdminDispute({
+    required this.id,
+    required this.bookingId,
+    required this.raisedBy,
+    required this.description,
+    required this.status,
+    required this.resolution,
+    required this.createdAt,
+  });
+
+  factory AdminDispute.fromJson(Map<String, dynamic> j) => AdminDispute(
+    id: j['dispute_id'] ?? j['id'] ?? '',
+    bookingId: j['booking_id'] ?? '',
+    raisedBy: j['raised_by'] ?? '',
+    description: j['description'] ?? '',
+    status: j['status'] ?? 'OPEN',
+    resolution: j['resolution'] ?? '',
+    createdAt: j['created_at'] ?? '',
+  );
+}
+
 // ── Service Zones ─────────────────────────────────────────────────────────────
 
 class AdminZone {

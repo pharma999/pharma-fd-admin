@@ -1,5 +1,5 @@
 name: home_care_admin
-description: "Home Care Service — Admin Panel"
+description: "Home Care — Service Provider App"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -12,14 +12,18 @@ dependencies:
   cupertino_icons: ^1.0.8
   get: ^4.7.2
   http: ^1.2.1
+  dio: ^5.7.0
+  image_picker: ^1.1.2
   shared_preferences: ^2.5.4
   flutter_rating_bar: ^4.0.1
   intl: ^0.19.0
-  google_maps_flutter: ^2.14.0
-  geolocator: ^14.0.2
+  intl_phone_field: ^3.2.0
+  sms_autofill: ^2.4.1
   fl_chart: ^0.69.0
   url_launcher: ^6.3.0
-  web_socket_channel: ^3.0.1
+  path_provider: ^2.1.5
+  geolocator: ^14.0.2
+  google_maps_flutter: ^2.14.0
 
 dev_dependencies:
   flutter_test:

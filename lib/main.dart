@@ -1,104 +1,103 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'controllers/admin_controller.dart';
-import 'screens/login_screen.dart';
-import 'screens/dashboard_screen.dart';
-import 'screens/approvals_screen.dart';
-import 'screens/users_screen.dart';
-import 'screens/bookings_screen.dart';
-import 'screens/emergencies_screen.dart';
-import 'screens/tickets_screen.dart';
-import 'screens/plans_screen.dart';
-import 'screens/zones_screen.dart';
-import 'screens/appointments_screen.dart';
-import 'screens/emergency_map_screen.dart';
-import 'core/token_storage.dart';
+import 'package:home_care_admin/screens/splash_screen.dart';
+import 'package:home_care_admin/screens/auth/phone_screen.dart';
+import 'package:home_care_admin/screens/auth/otp_screen.dart';
+import 'package:home_care_admin/screens/onboarding/provider_type_screen.dart';
+import 'package:home_care_admin/screens/onboarding/individual_profile_screen.dart';
+import 'package:home_care_admin/screens/onboarding/org_profile_screen.dart';
+import 'package:home_care_admin/screens/onboarding/document_upload_screen.dart';
+import 'package:home_care_admin/screens/onboarding/verification_status_screen.dart';
+import 'package:home_care_admin/screens/main/main_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const AdminApp());
+  runApp(const ProviderApp());
 }
 
-class AdminApp extends StatelessWidget {
-  const AdminApp({super.key});
+class ProviderApp extends StatelessWidget {
+  const ProviderApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Home Care Admin',
+      title: 'HomeCare Provider',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00897B)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF2563EB),
+          primary: const Color(0xFF2563EB),
+        ),
         useMaterial3: true,
-        appBarTheme: const AppBarTheme(elevation: 0),
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        appBarTheme: const AppBarTheme(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Color(0xFF1E293B),
+          titleTextStyle: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+        ),
         cardTheme: CardThemeData(
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2563EB),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF2563EB), width: 2),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       ),
-      initialBinding: BindingsBuilder(() {
-        Get.put(AdminController());
-      }),
       initialRoute: '/splash',
       getPages: [
-        GetPage(name: '/splash', page: () => const _SplashPage()),
-        GetPage(name: '/login', page: () => const LoginScreen()),
-        GetPage(name: '/dashboard', page: () => const DashboardScreen()),
-        GetPage(name: '/approvals', page: () => const ApprovalsScreen()),
-        GetPage(name: '/users', page: () => const UsersScreen()),
-        GetPage(name: '/bookings', page: () => const BookingsScreen()),
-        GetPage(name: '/emergencies', page: () => const EmergenciesScreen()),
-        GetPage(name: '/tickets', page: () => const TicketsScreen()),
-        GetPage(name: '/plans', page: () => const PlansScreen()),
-        GetPage(name: '/zones', page: () => const ZonesScreen()),
-        GetPage(name: '/appointments', page: () => const AppointmentsScreen()),
-        GetPage(name: '/emergency-map', page: () => const EmergencyMapScreen()),
+        GetPage(name: '/splash', page: () => const SplashScreen()),
+        GetPage(name: '/phone', page: () => const PhoneScreen()),
+        GetPage(name: '/otp', page: () => const OtpScreen()),
+        GetPage(
+            name: '/provider-type', page: () => const ProviderTypeScreen()),
+        GetPage(
+            name: '/individual-profile',
+            page: () => const IndividualProfileScreen()),
+        GetPage(name: '/org-profile', page: () => const OrgProfileScreen()),
+        GetPage(
+            name: '/doc-upload',
+            page: () => const DocumentUploadScreen()),
+        GetPage(
+            name: '/verification',
+            page: () => const VerificationStatusScreen()),
+        GetPage(name: '/main', page: () => const MainShell()),
       ],
-    );
-  }
-}
-
-class _SplashPage extends StatefulWidget {
-  const _SplashPage();
-  @override
-  State<_SplashPage> createState() => _SplashPageState();
-}
-
-class _SplashPageState extends State<_SplashPage> {
-  @override
-  void initState() {
-    super.initState();
-    _checkAuth();
-  }
-
-  Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    final token = await TokenStorage.getToken();
-    if (token != null && token.isNotEmpty) {
-      Get.offAllNamed('/dashboard');
-    } else {
-      Get.offAllNamed('/login');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFF00897B),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.admin_panel_settings, size: 80, color: Colors.white),
-            SizedBox(height: 16),
-            Text('Home Care Admin',
-                style: TextStyle(
-                    fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-            SizedBox(height: 32),
-            CircularProgressIndicator(color: Colors.white),
-          ],
-        ),
-      ),
     );
   }
 }

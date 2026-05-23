@@ -5,5 +5,6 @@
   "go.gopath": "",
   "go.toolsEnvVars": {
     "GOWORK": "D:/go project/go.work"
-  }
+  },
+  "cmake.sourceDirectory": "D:/flutter project/home_care_admin/linux"
 }
