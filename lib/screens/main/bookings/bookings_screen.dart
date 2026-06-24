@@ -8,6 +8,8 @@ import 'package:home_care_admin/core/api_client.dart';
 import 'package:home_care_admin/core/token_storage.dart';
 import 'package:home_care_admin/models/provider_models.dart';
 import 'package:home_care_admin/screens/main/bookings/booking_detail_screen.dart';
+import 'package:home_care_admin/screens/main/bookings/incoming_booking_screen.dart';
+import 'package:home_care_admin/screens/call/incoming_call_screen.dart';
 
 class BookingsScreen extends StatefulWidget {
   const BookingsScreen({super.key});
@@ -32,9 +34,11 @@ class _BookingsScreenState extends State<BookingsScreen>
     _tabController = TabController(length: 3, vsync: this);
     _loadBookings();
     _connectWS();
-    // Fallback: poll every 15 s when WebSocket is disconnected
+    // Always poll every 15 s — WebSocket handles instant alerts,
+    // polling ensures bookings appear even when WS is up but the push
+    // wasn't delivered (e.g. patient booked without selecting a provider).
     _wsPollTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      if (_ws == null) _silentRefresh();
+      _silentRefresh();
     });
   }
 
@@ -80,31 +84,89 @@ class _BookingsScreenState extends State<BookingsScreen>
   void _onWsMessage(dynamic raw) {
     try {
       final msg = jsonDecode(raw as String) as Map<String, dynamic>;
-      if (msg['type'] == 'booking_status') {
-        final payload = msg['payload'];
-        final Map<String, dynamic> p = payload is String
-            ? jsonDecode(payload) as Map<String, dynamic>
-            : Map<String, dynamic>.from(payload as Map);
-        final event = p['event'] as String? ?? '';
-        final serviceName = p['service_name'] as String? ?? 'a service';
-        if (event == 'NEW_BOOKING') {
+      final type = msg['type'] as String? ?? '';
+
+      // Backend sends type="booking_status" with payload.event="NEW_BOOKING"
+      if (type == 'booking_status') {
+        final rawPayload = msg['payload'];
+        final Map<String, dynamic> payload = rawPayload is String
+            ? jsonDecode(rawPayload) as Map<String, dynamic>
+            : Map<String, dynamic>.from(rawPayload as Map);
+
+        if ((payload['event'] as String? ?? '') == 'NEW_BOOKING') {
           _silentRefresh();
-          if (mounted) {
-            Get.snackbar(
-              '🔔 New Booking!',
-              'New request for $serviceName — check your bookings tab.',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: const Color(0xFF2563EB),
-              colorText: Colors.white,
-              duration: const Duration(seconds: 5),
-              icon: const Icon(Icons.notifications_active, color: Colors.white),
-            );
-            // Jump to New tab
-            _tabController.animateTo(0);
-          }
+          _showIncomingBookingAlert(payload);
+        }
+      }
+
+      // booking_update = existing booking status changed (patient cancelled etc.)
+      if (type == 'booking_update') {
+        _silentRefresh();
+      }
+
+      // ── call_invite: patient is calling this provider ─────────────────
+      if (type == 'call_invite') {
+        final rawP = msg['payload'];
+        final p = rawP is String
+            ? jsonDecode(rawP) as Map<String, dynamic>
+            : Map<String, dynamic>.from(rawP as Map);
+
+        final callId     = p['call_id']     as String? ?? '';
+        final callerId   = p['caller_id']   as String? ?? '';
+        final callerName = p['caller_name'] as String? ?? 'Patient';
+        final bookingId  = p['booking_id']  as String? ?? '';
+
+        if (callId.isNotEmpty && mounted) {
+          Future.delayed(const Duration(milliseconds: 200), () {
+            if (!mounted) return;
+            Navigator.of(context).push(MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (_) => IncomingCallScreen(
+                callId:     callId,
+                callerId:   callerId,
+                callerName: callerName,
+                bookingId:  bookingId,
+              ),
+            ));
+          });
         }
       }
     } catch (_) {}
+  }
+
+  /// Shows the full-screen Uber-style incoming booking alert.
+  /// Navigates back to New tab after the alert is dismissed.
+  void _showIncomingBookingAlert(Map<String, dynamic> bookingData) {
+    if (!mounted) return;
+    // Calculate remaining seconds from expires_at if available
+    int timeout = 60;
+    final expiresAt = bookingData['expires_at'];
+    if (expiresAt != null) {
+      try {
+        final expiry = DateTime.parse(expiresAt.toString()).toLocal();
+        final remaining = expiry.difference(DateTime.now()).inSeconds;
+        if (remaining > 0 && remaining <= 180) timeout = remaining;
+      } catch (_) {}
+    }
+
+    Navigator.of(Get.context!).push(
+      PageRouteBuilder(
+        opaque: true,
+        pageBuilder: (_, __, ___) => IncomingBookingScreen(
+          bookingData: bookingData,
+          timeoutSeconds: timeout,
+        ),
+        transitionsBuilder: (_, anim, __, child) => FadeTransition(
+          opacity: anim,
+          child: child,
+        ),
+        transitionDuration: const Duration(milliseconds: 250),
+      ),
+    ).then((_) {
+      // Refresh list and jump to appropriate tab when alert closes
+      _silentRefresh();
+      if (mounted) _tabController.animateTo(0);
+    });
   }
 
   Future<void> _silentRefresh() async {
@@ -331,7 +393,7 @@ class BookingCard extends StatelessWidget {
           border: Border.all(color: const Color(0xFFE2E8F0)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -341,7 +403,7 @@ class BookingCard extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: _statusColor.withOpacity(0.06),
+                color: _statusColor.withValues(alpha: 0.06),
                 borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16)),
@@ -363,7 +425,7 @@ class BookingCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _statusColor.withOpacity(0.12),
+                      color: _statusColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(

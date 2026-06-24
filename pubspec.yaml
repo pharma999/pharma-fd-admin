@@ -24,6 +24,15 @@ dependencies:
   path_provider: ^2.1.5
   geolocator: ^14.0.2
   google_maps_flutter: ^2.14.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  file_picker: ^8.1.7
+  flutter_image_compress: ^2.3.0
+  open_file: ^3.5.10
+  audioplayers: ^6.1.0
+  vibration: ^2.0.0
+  flutter_webrtc: ^0.12.5
+  wakelock_plus: ^1.2.10
 
 dev_dependencies:
   flutter_test:

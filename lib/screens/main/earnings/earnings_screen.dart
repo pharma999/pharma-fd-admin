@@ -34,9 +34,9 @@ class _EarningsScreenState extends State<EarningsScreen> {
             .catchError((_) => <String, dynamic>{}),
       ]);
 
-      final earningsData = results[0] as Map<String, dynamic>;
-      final balanceData = results[1] as Map<String, dynamic>;
-      final txData = results[2] as Map<String, dynamic>;
+      final earningsData = results[0];
+      final balanceData = results[1];
+      final txData = results[2];
 
       if (earningsData.isNotEmpty) {
         _earnings = ProviderEarnings.fromJson(earningsData);
@@ -167,7 +167,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -207,7 +207,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
         border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -323,7 +323,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.account_balance_wallet_rounded,
@@ -353,7 +353,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Text('Withdraw',

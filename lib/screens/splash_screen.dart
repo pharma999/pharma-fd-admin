@@ -96,10 +96,10 @@ class _SplashScreenState extends State<SplashScreen>
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                          color: Colors.white.withOpacity(0.4), width: 2),
+                          color: Colors.white.withValues(alpha: 0.4), width: 2),
                     ),
                     child: const Icon(
                       Icons.medical_services_rounded,

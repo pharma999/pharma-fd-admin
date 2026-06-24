@@ -5,11 +5,15 @@ import 'package:http/http.dart' as http;
 import 'package:home_care_admin/core/token_storage.dart';
 
 class ApiClient {
+  static const String _serverLanIp = '192.168.1.7';
+
   static String get baseUrl {
     const envUrl = String.fromEnvironment('API_BASE_URL');
     if (envUrl.isNotEmpty) return envUrl;
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8080/api';
+    if (kIsWeb) return 'http://localhost:8080/api';
+    if (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS) {
+      return 'http://$_serverLanIp:8080/api';
     }
     return 'http://localhost:8080/api';
   }
@@ -67,6 +71,21 @@ class ApiClient {
             headers: headers,
             body: jsonEncode(body),
           )
+          .timeout(const Duration(seconds: 30));
+      return _handleResponse(response);
+    } on SocketException {
+      throw Exception('No internet connection. Please check your network.');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('Request failed: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> delete(String path) async {
+    try {
+      final headers = await _headers();
+      final response = await http
+          .delete(Uri.parse('$baseUrl$path'), headers: headers)
           .timeout(const Duration(seconds: 30));
       return _handleResponse(response);
     } on SocketException {

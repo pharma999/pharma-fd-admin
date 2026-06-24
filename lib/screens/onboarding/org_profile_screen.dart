@@ -136,8 +136,8 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
 
   @override
   void dispose() {
-    for (final c in _otpControllers) c.dispose();
-    for (final f in _otpFocusNodes) f.dispose();
+    for (final c in _otpControllers) { c.dispose(); }
+    for (final f in _otpFocusNodes) { f.dispose(); }
     _orgNameController.dispose();
     _regNumberController.dispose();
     _gstController.dispose();
@@ -468,7 +468,7 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
               onPressed: _isLoading
                   ? null
                   : () {
-                      for (final c in _otpControllers) c.clear();
+                      for (final c in _otpControllers) { c.clear(); }
                       setState(() => _otpSent = false);
                     },
               child: const Text('Resend OTP',

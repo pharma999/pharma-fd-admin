@@ -129,8 +129,8 @@ class _IndividualProfileScreenState extends State<IndividualProfileScreen> {
 
   @override
   void dispose() {
-    for (final c in _otpControllers) c.dispose();
-    for (final f in _otpFocusNodes) f.dispose();
+    for (final c in _otpControllers) { c.dispose(); }
+    for (final f in _otpFocusNodes) { f.dispose(); }
     _nameController.dispose();
     _dobController.dispose();
     _emailController.dispose();
@@ -454,7 +454,7 @@ class _IndividualProfileScreenState extends State<IndividualProfileScreen> {
               onPressed: _isLoading
                   ? null
                   : () {
-                      for (final c in _otpControllers) c.clear();
+                      for (final c in _otpControllers) { c.clear(); }
                       setState(() => _otpSent = false);
                     },
               child: const Text('Resend OTP',
@@ -737,7 +737,7 @@ class _IndividualProfileScreenState extends State<IndividualProfileScreen> {
                   TextStyle(fontSize: 12, color: Color(0xFF64748B)),
             ),
             value: _emergencyCapable,
-            activeColor: const Color(0xFF2563EB),
+            activeThumbColor: const Color(0xFF2563EB),
             onChanged: (v) => setState(() => _emergencyCapable = v),
           ),
         ),

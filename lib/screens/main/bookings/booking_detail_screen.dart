@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:home_care_admin/core/api_client.dart';
 import 'package:home_care_admin/models/provider_models.dart';
 import 'package:home_care_admin/screens/main/bookings/booking_map_screen.dart';
+import 'package:home_care_admin/screens/main/chat/chat_room_screen.dart';
+import 'package:home_care_admin/screens/main/chat/chat_list_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final ProviderBooking booking;
@@ -29,7 +31,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   void initState() {
     super.initState();
     _booking = widget.booking;
-    if (_booking.status == 'IN_PROGRESS') {
+    // Stream location whenever the booking is active (ACCEPTED or IN_PROGRESS)
+    // so the patient's tracking map shows the provider moving immediately.
+    if (_booking.isAccepted || _booking.isInProgress) {
       _startLocationUpdates();
     }
   }
@@ -44,9 +48,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
   void _startLocationUpdates() {
     _locationTimer?.cancel();
-    _locationTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+    // 4-second interval: fast enough for smooth map animation, light on battery
+    _locationTimer = Timer.periodic(const Duration(seconds: 4), (_) {
       _sendLocation();
     });
+    _sendLocation(); // immediate first update on start
   }
 
   Future<void> _sendLocation() async {
@@ -87,7 +93,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
         customerLng: _booking.customerLng,
       );
       setState(() => _booking = accepted);
-      Get.snackbar('Accepted', 'Booking accepted successfully',
+      _startLocationUpdates(); // begin streaming so patient sees movement immediately
+      Get.snackbar('Accepted', 'Booking accepted — navigating to customer',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green.shade100,
           colorText: Colors.green.shade900);
@@ -407,7 +414,24 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(title: const Text('Booking Details')),
+      appBar: AppBar(
+        title: const Text('Booking Details',
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 17)),
+        backgroundColor: const Color(0xFF2563EB),
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: Colors.white, size: 20),
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(bottom: Radius.circular(16)),
+        ),
+      ),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: Color(0xFF2563EB)))
@@ -586,6 +610,63 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     );
   }
 
+  Future<void> _openChat() async {
+    final bookingId = _booking.id;
+    if (bookingId.isEmpty) return;
+    setState(() => _isLoading = true);
+    try {
+      // POST /chat/booking/:id — creates or fetches the conversation
+      final res = await ApiClient.post(
+        '/chat/booking/$bookingId',
+        {},
+      );
+      final d = res['data'] as Map<String, dynamic>? ?? res;
+      final conv = ProviderConversation(
+        id: d['conversation_id'] ?? d['id'] ?? '',
+        bookingId: d['booking_id'] ?? bookingId,
+        patientUserId: d['patient_user_id'] ?? '',
+        nurseUserId: d['nurse_user_id'] ?? '',
+        lastMessage: d['last_message'] ?? '',
+        lastMessageAt: null,
+        unreadNurse: (d['unread_nurse'] ?? 0) as int,
+        otherPartyName: d['patient_name'] ?? 'Patient',
+        otherPartyId: d['patient_user_id'] ?? '',
+      );
+      if (mounted) Get.to(() => ChatRoomScreen(conv: conv));
+    } catch (e) {
+      if (mounted) {
+        Get.snackbar(
+          'Chat Unavailable',
+          'Could not open chat. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFFFFEBEE),
+          colorText: const Color(0xFFB71C1C),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Widget _buildChatButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _isLoading ? null : _openChat,
+        icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+        label: const Text('Chat with Patient',
+            style: TextStyle(fontWeight: FontWeight.w700)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF2563EB),
+          side: const BorderSide(color: Color(0xFF2563EB)),
+          padding: const EdgeInsets.symmetric(vertical: 13),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActions() {
     if (_booking.isPending) {
       return Row(
@@ -622,6 +703,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     if (_booking.isAccepted) {
       return Column(
         children: [
+          _buildChatButton(),
+          const SizedBox(height: 12),
           if (_booking.hasLocation) ...[
             SizedBox(
               width: double.infinity,
@@ -664,17 +747,23 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     }
 
     if (_booking.isInProgress) {
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: _complete,
-          icon: const Icon(Icons.check_circle_rounded),
-          label: const Text('Complete Service',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF16A34A),
+      return Column(
+        children: [
+          _buildChatButton(),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _complete,
+              icon: const Icon(Icons.check_circle_rounded),
+              label: const Text('Complete Service',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF16A34A),
+              ),
+            ),
           ),
-        ),
+        ],
       );
     }
 

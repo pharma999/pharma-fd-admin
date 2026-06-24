@@ -92,8 +92,22 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Upload Documents'),
-        automaticallyImplyLeading: false,
+        title: const Text('Upload Documents',
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 17)),
+        backgroundColor: const Color(0xFF2563EB),
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: Colors.white, size: 20),
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(bottom: Radius.circular(16)),
+        ),
       ),
       body: Column(
         children: [
@@ -218,10 +232,9 @@ class _DocItem {
     required this.title,
     required this.subtitle,
     required this.icon,
-    this.status = UploadStatus.idle,
-    this.localPath,
-    this.uploadedUrl,
-  });
+  })  : status = UploadStatus.idle,
+        localPath = null,
+        uploadedUrl = null;
 }
 
 class _DocumentCard extends StatelessWidget {
@@ -250,7 +263,7 @@ class _DocumentCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

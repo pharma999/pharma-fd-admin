@@ -79,10 +79,10 @@ class _PhoneScreenState extends State<PhoneScreen> {
                   width: 88,
                   height: 88,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                        color: Colors.white.withOpacity(0.5), width: 1.5),
+                        color: Colors.white.withValues(alpha: 0.5), width: 1.5),
                   ),
                   child: const Icon(
                     Icons.health_and_safety_rounded,
@@ -115,7 +115,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF2563EB).withOpacity(0.15),
+                        color: const Color(0xFF2563EB).withValues(alpha: 0.15),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),

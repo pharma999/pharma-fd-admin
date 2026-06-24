@@ -28,9 +28,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _isLoading = true);
     _providerName = await TokenStorage.getName() ?? 'Provider';
     try {
-      final result = await ApiClient.get('/provider/profile');
-      if (result.isNotEmpty) {
-        setState(() => _profile = ProviderProfile.fromJson(result));
+      // GET /nurses/me returns {"status":200, "data": {NurseResponse}}
+      final res = await ApiClient.get('/nurses/me');
+      final raw = res['data'] as Map<String, dynamic>? ?? res;
+      if (raw.isNotEmpty) {
+        // nurse_id is the ID field in NurseResponse
+        final merged = <String, dynamic>{
+          ...raw,
+          'id': raw['nurse_id'] ?? raw['id'] ?? raw['_id'] ?? '',
+        };
+        setState(() => _profile = ProviderProfile.fromJson(merged));
       }
     } catch (_) {
       // Use stored name as fallback
@@ -151,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     height: 90,
                                     decoration: BoxDecoration(
                                       color:
-                                          Colors.white.withOpacity(0.2),
+                                          Colors.white.withValues(alpha: 0.2),
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                           color: Colors.white, width: 3),
@@ -310,9 +317,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -340,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -374,7 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
         ),
         value: isAvailable,
-        activeColor: const Color(0xFF16A34A),
+        activeThumbColor: const Color(0xFF16A34A),
         onChanged: _isTogglingAvailability
             ? null
             : (_) => _toggleAvailability(),
@@ -456,7 +463,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             border: Border.all(color: const Color(0xFFE2E8F0)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -473,7 +480,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: item.color.withOpacity(0.1),
+                        color: item.color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(item.icon, color: item.color, size: 20),

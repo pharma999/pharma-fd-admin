@@ -90,11 +90,11 @@ class ProviderBooking {
     this.customerLng,
   });
 
-  bool get isPending => status == 'PENDING';
+  bool get isPending => status == 'PENDING' || status == 'ASSIGNED';
   bool get isAccepted => status == 'ACCEPTED';
   bool get isInProgress => status == 'IN_PROGRESS';
   bool get isCompleted => status == 'COMPLETED';
-  bool get isRejected => status == 'REJECTED';
+  bool get isRejected => status == 'REJECTED' || status == 'EXPIRED';
   bool get hasLocation => customerLat != null && customerLng != null;
 
   factory ProviderBooking.fromJson(Map<String, dynamic> j) {

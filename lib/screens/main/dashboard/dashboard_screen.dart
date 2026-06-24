@@ -32,7 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _providerName = await TokenStorage.getName() ?? 'Provider';
     try {
       final results = await Future.wait([
-        ApiClient.get('/provider/profile').catchError((_) => <String, dynamic>{}),
+        ApiClient.get('/nurses/me').catchError((_) => <String, dynamic>{}),
         ApiClient.get('/provider/bookings').catchError((_) => <String, dynamic>{}),
         ApiClient.get('/provider/earnings').catchError((_) => <String, dynamic>{}),
       ]);
@@ -41,10 +41,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final bookingsData = results[1];
       final earningsData = results[2];
 
-      // API wraps data in {"data": {...}} — unwrap before parsing
+      // /nurses/me returns {"status":200, "data": {NurseResponse}}
       final profileInner = profileData['data'] as Map<String, dynamic>? ?? profileData;
       if (profileInner.isNotEmpty) {
-        _profile = ProviderProfile.fromJson(profileInner);
+        final merged = <String, dynamic>{
+          ...profileInner,
+          'id': profileInner['nurse_id'] ?? profileInner['id'] ?? profileInner['_id'] ?? '',
+        };
+        _profile = ProviderProfile.fromJson(merged);
       }
       final bookingsList = bookingsData['data'] as List<dynamic>? ??
           bookingsData['bookings'] as List<dynamic>? ??

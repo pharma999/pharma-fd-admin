@@ -7,6 +7,9 @@ import 'package:home_care_admin/screens/main/dashboard/dashboard_screen.dart';
 import 'package:home_care_admin/screens/main/bookings/bookings_screen.dart';
 import 'package:home_care_admin/screens/main/earnings/earnings_screen.dart';
 import 'package:home_care_admin/screens/main/profile/profile_screen.dart';
+import 'package:home_care_admin/screens/main/services/provider_services_screen.dart';
+import 'package:home_care_admin/screens/main/chat/chat_list_screen.dart';
+import 'package:home_care_admin/screens/main/nearby/nearby_patients_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MainShell extends StatefulWidget {
@@ -24,6 +27,9 @@ class _MainShellState extends State<MainShell> {
   final List<Widget> _screens = const [
     DashboardScreen(),
     BookingsScreen(),
+    NearbyPatientsScreen(),
+    ChatListScreen(),
+    ProviderServicesScreen(),
     EarningsScreen(),
     ProfileScreen(),
   ];
@@ -112,6 +118,21 @@ class _MainShellState extends State<MainShell> {
               icon: Icon(Icons.calendar_today_outlined),
               activeIcon: Icon(Icons.calendar_today_rounded),
               label: 'Bookings',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.near_me_outlined),
+              activeIcon: Icon(Icons.near_me_rounded),
+              label: 'Nearby',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat_bubble_outline_rounded),
+              activeIcon: Icon(Icons.chat_bubble_rounded),
+              label: 'Messages',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.medical_services_outlined),
+              activeIcon: Icon(Icons.medical_services_rounded),
+              label: 'Services',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.account_balance_wallet_outlined),
